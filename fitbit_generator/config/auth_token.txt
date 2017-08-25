@@ -1,0 +1,7 @@
+token_type = Bearer
+user_id = 52PZ57
+refresh_token = f6dd16ab25d6c54cd73b5f6b76756186a161f75fb1077c83689223175eecda67
+access_token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1MlBaNTciLCJhdWQiOiIyMjg1OTgiLCJpc3MiOiJGaXRiaXQiLCJ0eXAiOiJhY2Nlc3NfdG9rZW4iLCJzY29wZXMiOiJyc29jIHJzZXQgcmFjdCBybG9jIHJ3ZWkgcmhyIHJudXQgcnBybyByc2xlIiwiZXhwIjoxNTAyMDU5NDEwLCJpYXQiOjE1MDIwMzA2MTB9.CRLFMHYSkQWK5FK8cCxrF96YQEN-sYkRAmiOEzPk-5o
+scope = [u'social', u'settings', u'activity', u'location', u'weight', u'nutrition', u'profile', u'heartrate', u'sleep']
+expires_in = 28800
+expires_at = 1502059412.31
