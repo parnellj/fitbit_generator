@@ -24,8 +24,7 @@ CLIENT_SECRET = token['CLIENT_SECRET']
 REDIRECT_URI = token['REDIRECT_URI']
 
 class OAuth2Server:
-    def __init__(self, client_id, client_secret,
-                 redirect_uri=REDIRECT_URI):
+    def __init__(self, client_id, client_secret, redirect_uri):
         """ Initialize the FitbitOauth2Client """
         self.success_html = """
             <h1>You are now authorized to access the Fitbit API!</h1>
@@ -89,7 +88,7 @@ if __name__ == '__main__':
     #     print("Arguments: client_id and client_secret")
     #     sys.exit(1)
 
-    server = OAuth2Server(client_id=CLIENT_ID, client_secret=CLIENT_SECRET)
+    server = OAuth2Server(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, redirect_uri=REDIRECT_URI)
     server.browser_authorize()
 
     profile = server.fitbit.user_profile_get()

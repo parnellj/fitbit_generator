@@ -13,7 +13,7 @@ pd.set_option('display.max_rows', 1000)
 CONFIGS = os.path.join('.', 'config')
 INPATH = os.path.join('.', 'inputs')
 OUTPATH = os.path.join('.', 'outputs')
-LOCAL_PATH = os.path.join('D:', 'Dropbox', 'Food and Fitness', 'fitbit_data')
+LOCAL_PATH = os.path.join('D:', os.sep, 'Dropbox', 'food_and_fitness', 'fitbit_data')
 
 with open(os.path.join(CONFIGS, 'api_key.txt'), 'r') as f:
             t = []
@@ -58,7 +58,7 @@ class Dataset:
         if fields is None:
             fields = ['heart', 'steps', 'elevation', 'sleep']
         # Load an existing authorization token into memory
-        with open('auth_token.txt', 'r') as f:
+        with open(os.path.join(CONFIGS, 'auth_token.txt'), 'r') as f:
             t = []
             for line in f.readlines():
                 t.append(tuple(line[:-1].split(' = ')))
@@ -76,31 +76,40 @@ class Dataset:
                 heart_intraday = fb.intraday_time_series(resource='activities/heart',
                                                          base_date=day, detail_level='1sec')
                 heart_data = heart_intraday[u'activities-heart-intraday'][u'dataset']
-                if heart_data[0][u'time'] != u'00:00:00':
-                    heart_data = [{u'time': u'00:00:00', u'value': 0}] + heart_data
-                if heart_data[-1][u'time'] != u'23:59:59':
-                    heart_data = heart_data + [{u'time': u'23:59:59', u'value': 0}]
-                self.add_observation('heart', day, heart_data, fill='interpolate')
+                if heart_data:
+                    if heart_data[0][u'time'] != u'00:00:00':
+                        heart_data = [{u'time': u'00:00:00', u'value': 0}] + heart_data
+                    if heart_data[-1][u'time'] != u'23:59:59':
+                        heart_data = heart_data + [{u'time': u'23:59:59', u'value': 0}]
+                    self.add_observation('heart', day, heart_data, fill='interpolate')
+                else:
+                    self.add_observation('heart', day, heart_data, fill='NA')
 
             if 'steps' in fields:
                 steps_intraday = fb.intraday_time_series(resource='activities/steps',
                                                          base_date=day, detail_level='1min')
                 step_data = steps_intraday[u'activities-steps-intraday'][u'dataset']
-                if step_data[0][u'time'] != u'00:00:00':
-                    step_data = [{u'time': u'00:00:00', u'value': 0}] + step_data
-                if step_data[-1][u'time'] != u'23:59:59':
-                    step_data = step_data + [{u'time': u'23:59:59', u'value': 0}]
-                self.add_observation('steps', day, step_data, fill='subdivide')
+                if step_data:
+                    if step_data[0][u'time'] != u'00:00:00':
+                        step_data = [{u'time': u'00:00:00', u'value': 0}] + step_data
+                    if step_data[-1][u'time'] != u'23:59:59':
+                        step_data = step_data + [{u'time': u'23:59:59', u'value': 0}]
+                    self.add_observation('steps', day, step_data, fill='subdivide')
+                else:
+                    self.add_observation('steps', day, step_data, fill='NA')
 
             if 'elevation' in fields:
                 elevation_intraday = fb.intraday_time_series(resource='activities/elevation',
                                                              base_date=day, detail_level='1min')
                 elevation_data = elevation_intraday[u'activities-elevation-intraday'][u'dataset']
-                if elevation_data[0][u'time'] != u'00:00:00':
-                    elevation_data = [{u'time': u'00:00:00', u'value': 0}] + elevation_data
-                if elevation_data[-1][u'time'] != u'23:59:59':
-                    elevation_data = elevation_data + [{u'time': u'23:59:59', u'value': 0}]
-                self.add_observation('elevation', day, elevation_data, fill='subdivide')
+                if elevation_data:
+                    if elevation_data[0][u'time'] != u'00:00:00':
+                        elevation_data = [{u'time': u'00:00:00', u'value': 0}] + elevation_data
+                    if elevation_data[-1][u'time'] != u'23:59:59':
+                        elevation_data = elevation_data + [{u'time': u'23:59:59', u'value': 0}]
+                    self.add_observation('elevation', day, elevation_data, fill='subdivide')
+                else:
+                    self.add_observation('elevation', day, elevation_data, fill='NA')
 
             if 'sleep' in fields:
                 sleep = fb.get_sleep(date=day)
@@ -109,7 +118,10 @@ class Dataset:
                                   for s in sleep[u'sleep'][0][u'minuteData']]
                 except IndexError:
                     sleep_data = None
-                self.add_observation('sleep', day, sleep_data, fill='repeat')
+                if sleep_data:
+                    self.add_observation('sleep', day, sleep_data, fill='repeat')
+                else:
+                    self.add_observation('sleep', day, sleep_data, fill='NA')
 
     def add_observation(self, colname, start_day, observations, fill='subdivide'):
         if observations is None:
@@ -128,6 +140,7 @@ class Dataset:
             if fill == 'subdivide':         period_obs = [a['value'] / time_steps] * time_steps
             elif fill == 'interpolate':     period_obs = np.linspace(a['value'], b['value'], time_steps)
             elif fill == 'repeat':          period_obs = [float(a['value'])] * time_steps
+            elif fill == 'NA':              period_obs = ['NA'] * time_steps
             else:                           period_obs = [a['value']] * time_steps
 
             try:                self.time_series.loc[this_time:next_time, colname] = period_obs
@@ -155,8 +168,8 @@ class Dataset:
         
 if __name__ == '__main__':
     # ds = Dataset(load_dir=os.path.join(LOCAL_PATH, '0 - raw'))
-    start_day = dt(2017, 7, 30)
-    end_day = dt(2017, 8, 5)
+    start_day = dt(2017, 8, 27)
+    end_day = dt(2017, 9, 2)
     ds = Dataset(start_day, end_day)
     ds.download_data()
     ds.save_raw()
