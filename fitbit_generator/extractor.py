@@ -168,8 +168,8 @@ class Dataset:
         
 if __name__ == '__main__':
     # ds = Dataset(load_dir=os.path.join(LOCAL_PATH, '0 - raw'))
-    start_day = dt(2017, 8, 27)
-    end_day = dt(2017, 9, 2)
+    start_day = dt(2017, 9, 24)
+    end_day = dt(2017, 10, 28)
     ds = Dataset(start_day, end_day)
     ds.download_data()
     ds.save_raw()
